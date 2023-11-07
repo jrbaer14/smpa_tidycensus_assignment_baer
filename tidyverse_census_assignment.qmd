@@ -1,6 +1,6 @@
 ---
 title: "Tidyverse Census Assignment"
-author: "Your Name Here"
+author: "Jenna Baer"
 format: html
 ---
 
@@ -35,7 +35,7 @@ You'll need your Census API Key:
 
 ```{r echo=FALSE}
 
-myapikey <- "YOUR API KEY"
+myapikey <- "400666ffe99f9585382f01a246a13f9f9255452f"
 
 census_api_key(myapikey, overwrite=TRUE)
 ```
@@ -48,6 +48,9 @@ You'll also need to load the list of American Community Survey variables from th
 
 ```{r}
 
+censusvariables <- load_variables (2021, "acs5", cache = TRUE)
+
+
 
 ```
 
@@ -55,11 +58,18 @@ You'll also need to load the list of American Community Survey variables from th
 
 **Q1** What is the Maryland jurisdiction with the lowest median age, according to the ACS 2021 5-year estimates? You will need to find the variable for median age first. 
 
+Baltimore City has the lowest median age.
+
+I saved the variable for median age then I scraped the data for the county, median ages for Maryland. I then arranged based on the median age variable.
+
 ```{r}
 
+median_age <- "B01002_001"
 
+q1 <- get_acs(geography = "county", variables = median_age, state = "MD", output = "wide")
 
-
+q1 %>%
+  arrange(B01002_001E)
 
 
 ```
@@ -67,9 +77,11 @@ You'll also need to load the list of American Community Survey variables from th
 
 **Q2** Which Maryland counties have a median age of at least 50? You can use the dataframe you just made to answer this, but you must write code to display only those counties with a median age of at least 50. 
 
+Talbot and Worcester have a median age greater than 50. I found this by filtering the variable from the acs table.
 ```{r}
 
-
+q1 %>%
+  filter(B01002_001E >= 50)
 
 
 ```
@@ -81,9 +93,24 @@ For each dataframe, rename the `estimate` column to a meaningful name you've giv
 
 Which county has the highest percentage of 5-17 year-olds who speak Spanish at home and also speak English very well?
 
+Prince George's County, Maryland
+
+Here I scraped the data for both children between the ages of 5-17, and children between the ages of 5-17 who come from Spanish speaking households and speak English well at home.
 ```{r}
 
 
+
+q3 <- get_acs(geography = "county", variables = "B16004_002", state = "MD", output = "wide")
+
+q3spanish <- get_acs(geography = "county", variables = "B16004_005", state = "MD", output = "wide")
+
+left_join(q3spanish, q3, by = "NAME", "GEOID") %>%
+  select(-ends_with("M")) %>%
+  mutate(pct_english_well = (B16004_005E / B16004_002E) * 100) %>%
+  arrange(desc(pct_english_well))
+  
+
+  
 
 
 
@@ -98,6 +125,8 @@ Which county has the highest percentage of 5-17 year-olds who speak Spanish at h
 
 
 **Q4** Given the counties with the largest percentage of 5-17 year-olds that speak Spanish at home, which county stands out to you in the data as different from the others? How would you describe the top 5 counties? How would you describe Garrett County's numbers?
+
+I would say Montgomery County sticks out because it has such a large total population of 5-17 year olds compared to all of the other counties. The top five counties are a bit all over the place in terms of total population of 5-17 year olds. They all seem to be more urban based off of a google search. Garrett has very few 5-17 year olds in general, but the percentage of children from Spanish speaking households who know english is also very low.
 
 PUT ANSWER HERE
 
