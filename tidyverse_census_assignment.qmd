@@ -160,7 +160,7 @@ pa_zips <- get_acs(geography = 'zcta',
 
 
 ```
-
+Here I joined the two datatables based on the variable zip being equivalent to GEOID. I then created a new column using the mutate function to calculate the per capita ballot rates.
 
 ```{r}
 
@@ -175,6 +175,11 @@ pa_zips_with_ballots
 
 
 ```
+Which zip code *that has returned at least 100 mail ballots* has the highest per capita rate?
+
+19436
+
+Here I filtered my joined table for the zipcodes that had returned at least 100 ballots, and then arranged in order based on their per capita rates. 
 ```{r}
 
 
@@ -183,12 +188,43 @@ pa_zips_with_ballots %>%
   arrange(desc(ballots_per_100))
 
 
+```
+
+Where is that zip code and what does Census Reporter say about its demographics?
+
+It's in Montgomery County, PA. The median age is 78.6 years old. There are only 614 people who live in that area, and 100% of them are white.
+
+
+For zip codes with a per capita rate of at least 10 returned ballots per 100 people, how many have median incomes of at least \$100,000?
+
+Here I filtered for a per capita rate of over 10 and median income over $100,000. 
+
+Four counties have median incomes of at least $100,000.
+```{r}
+
 pa_zips_with_ballots %>% 
   filter(ballots_per_100 >= 10, median_incomeE >= 100000) %>% 
   arrange(desc(ballots_per_100))
 
-pa_zips_with_ballots %>% 
-  filter(ballots_per_100 >= 10, median_incomeE < 68957) %>% 
-  arrange(desc(ballots_per_100))
 
 ```
+
+
+How many have median incomes less than the state figure of \$68,957?
+
+Here I filtered for ballots per capita rate over 10 and median income below the state avg. 
+
+18 counties
+
+-   What's the most interesting one from this last result?
+
+I would say 15139 because it has one of the highest median incomes from this group, and is very close to the the median of the state yet it has almost the lowest per capita ballots cast.
+```{r}
+pa_zips_with_ballots %>% 
+  filter(ballots_per_100 >= 10, median_incomeE < 68957) %>% 
+  arrange(desc(ballots_per_100)) %>%
+  select(-ends_with("M"))
+
+
+```
+
