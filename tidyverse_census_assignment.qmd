@@ -145,8 +145,16 @@ Join the ZCTA dataframe to the zip totals dataframe and calculate a per capita r
 ```{r}
 
 
+zip_totals <- read_csv("data/pa_zip_totals.csv")
 
+zip_totals 
 
+pa_zips <- get_acs(geography = 'zcta', 
+                   state = 'PA', 
+                   variables = c(total_pop = 'B01003_001', median_income = 'B19013_001'), 
+                   year = 2019, 
+                   output = "wide")
+  pa_zips
 
 
 
@@ -157,10 +165,30 @@ Join the ZCTA dataframe to the zip totals dataframe and calculate a per capita r
 ```{r}
 
 
+pa_zips_with_ballots <- zip_totals %>% 
+  inner_join(pa_zips, by = c("zip"="GEOID")) %>% 
+  mutate(ballots_per_100 = (count/total_popE) * 100)
 
 
 
+pa_zips_with_ballots
 
 
+```
+```{r}
+
+
+pa_zips_with_ballots %>% 
+  filter(count >= 100) %>% 
+  arrange(desc(ballots_per_100))
+
+
+pa_zips_with_ballots %>% 
+  filter(ballots_per_100 >= 10, median_incomeE >= 100000) %>% 
+  arrange(desc(ballots_per_100))
+
+pa_zips_with_ballots %>% 
+  filter(ballots_per_100 >= 10, median_incomeE < 68957) %>% 
+  arrange(desc(ballots_per_100))
 
 ```
